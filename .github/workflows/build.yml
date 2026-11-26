@@ -86,6 +86,7 @@ jobs:
           CONFIG_PACKAGE_igmpproxy=y
           CONFIG_PACKAGE_udpxy=y
           CONFIG_PACKAGE_luci-app-udpxy=y
+          CONFIG_PACKAGE_kmod-nft-offload=y
           CONFIG_PACKAGE_odhcp6c=y
           CONFIG_PACKAGE_odhcpd-ipv6only=y
 
