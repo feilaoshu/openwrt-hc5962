@@ -44,6 +44,23 @@ jobs:
           sed -i 's/DEFAULT_PACKAGES += wpad-basic-mbedtls uboot-envtools kmod-crypto-hw-eip93/DEFAULT_PACKAGES += kmod-crypto-hw-eip93/' target/linux/ramips/mt7621/target.mk
           grep DEFAULT_PACKAGES target/linux/ramips/mt7621/target.mk
 
+      - name: Bake in Argon as default theme
+        run: |
+          cd owrt
+          mkdir -p files/etc/uci-defaults
+          cat > files/etc/uci-defaults/99-argon-defaults <<'EOS'
+          #!/bin/sh
+          uci set luci.main.mediaurlbase='/luci-static/argon'
+          uci set luci.themes.Argon='/luci-static/argon'
+          uci set luci.main.lang='zh_cn'
+          uci commit luci
+          exit 0
+          EOS
+          chmod +x files/etc/uci-defaults/99-argon-defaults
+          sed -i 's/^          //' files/etc/uci-defaults/99-argon-defaults
+          cat files/etc/uci-defaults/99-argon-defaults
+          ls -l files/etc/uci-defaults/
+
       - name: Configure firmware
         run: |
           cd owrt
