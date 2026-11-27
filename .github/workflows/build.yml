@@ -44,16 +44,21 @@ jobs:
           sed -i 's/DEFAULT_PACKAGES += wpad-basic-mbedtls uboot-envtools kmod-crypto-hw-eip93/DEFAULT_PACKAGES += kmod-crypto-hw-eip93/' target/linux/ramips/mt7621/target.mk
           grep DEFAULT_PACKAGES target/linux/ramips/mt7621/target.mk
 
-      - name: Bake in Argon as default theme
+      - name: Bake in defaults (Argon theme + LAN IP 192.168.31.1)
         run: |
           cd owrt
           mkdir -p files/etc/uci-defaults
           cat > files/etc/uci-defaults/99-argon-defaults <<'EOS'
           #!/bin/sh
+          # 默认主题 Argon + 中文
           uci set luci.main.mediaurlbase='/luci-static/argon'
           uci set luci.themes.Argon='/luci-static/argon'
           uci set luci.main.lang='zh_cn'
           uci commit luci
+          # 默认登录 IP 192.168.31.1（DHCP 池 start/limit 为相对偏移，自动变 .100-.249）
+          uci set network.lan.ipaddr='192.168.31.1'
+          uci set network.lan.netmask='255.255.255.0'
+          uci commit network
           exit 0
           EOS
           chmod +x files/etc/uci-defaults/99-argon-defaults
