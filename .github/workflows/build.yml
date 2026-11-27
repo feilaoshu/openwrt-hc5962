@@ -44,7 +44,7 @@ jobs:
           sed -i 's/DEFAULT_PACKAGES += wpad-basic-mbedtls uboot-envtools kmod-crypto-hw-eip93/DEFAULT_PACKAGES += kmod-crypto-hw-eip93/' target/linux/ramips/mt7621/target.mk
           grep DEFAULT_PACKAGES target/linux/ramips/mt7621/target.mk
 
-      - name: Bake in defaults (Argon theme + LAN IP 192.168.31.1)
+      - name: Bake in defaults (Argon theme + LAN IP + SSH 222 + root pwd)
         run: |
           cd owrt
           mkdir -p files/etc/uci-defaults
@@ -59,6 +59,13 @@ jobs:
           uci set network.lan.ipaddr='192.168.31.1'
           uci set network.lan.netmask='255.255.255.0'
           uci commit network
+          # SSH 端口 222，允许密码登录 root
+          uci set dropbear.@dropbear[0].Port='222'
+          uci set dropbear.@dropbear[0].PasswordAuth='on'
+          uci set dropbear.@dropbear[0].RootPasswordAuth='on'
+          uci commit dropbear
+          # root 密码 12345678（MD5 哈希预先算好，首次开机写入 /etc/shadow）
+          sed -i 's#^root:.*#root:$1$owrt2410$7.mvjTIrPra2yLMztyHtV/:0:99999:7:::#' /etc/shadow
           exit 0
           EOS
           chmod +x files/etc/uci-defaults/99-argon-defaults
